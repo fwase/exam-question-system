@@ -12,9 +12,10 @@ Fornecer o contrato comum que todas as implementações concretas de ingestão (
 
 ## Componentes
 
-Neste primeiro momento, o módulo conta **apenas com o componente base**, sem implementações reais/concretas:
-
 - **`BaseIngestion`** (`ingestion/base_ingestion.py`): classe abstrata (`ABC`) que define os métodos abstratos obrigatórios:
   - `extract(self) -> dict[str, Any]`
   - `normalize(self, data: dict[str, Any]) -> dict[str, Any]`
   - `save(self, data: dict[str, Any], exam: Exam, question: Question) -> None`
+- **`oab_ingestion`** (`ingestion/oab_ingestion/oab_ingestion.py`): submódulo com a implementação `OABIngestion(BaseIngestion)` para ingestão de questões da OAB a partir do dataset Parquet `eduagarcia/oab_exams`.
+  - Nesta etapa, apenas o método `extract()` está implementado (carregando o arquivo Parquet via `pandas`/`pyarrow`).
+  - Os métodos `normalize()` e `save()` levantam `NotImplementedError` e serão implementados em tarefas futuras.
