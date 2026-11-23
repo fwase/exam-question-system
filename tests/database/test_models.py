@@ -13,6 +13,7 @@ def test_exam_table_schema():
         "id",
         "type",
         "year",
+        "version",
         "examining_board",
         "subject",
         "state",
@@ -24,6 +25,8 @@ def test_exam_table_schema():
     assert isinstance(table.c.id.type, Integer)
     assert isinstance(table.c.type.type, String) and table.c.type.type.length == 20
     assert isinstance(table.c.year.type, Integer)
+    assert isinstance(table.c.version.type, String) and table.c.version.type.length == 20
+    assert table.c.version.nullable is True
     assert (
         isinstance(table.c.examining_board.type, String)
         and table.c.examining_board.type.length == 100

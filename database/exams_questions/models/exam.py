@@ -12,6 +12,7 @@ class Exam(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     type = Column(String(20), nullable=False)
     year = Column(Integer, nullable=False)
+    version = Column(String(20), nullable=True)
     examining_board = Column(String(100), nullable=True)
     subject = Column(String(100), nullable=True)
     state = Column(String(20), nullable=True)

@@ -1,4 +1,4 @@
-from database.repository.exam_repository import ExamRepository
-from database.repository.question_repository import QuestionRepository
+from database.repository.exam import Exam
+from database.repository.question import Question
 
-__all__ = ["ExamRepository", "QuestionRepository"]
+__all__ = ["Exam", "Question"]

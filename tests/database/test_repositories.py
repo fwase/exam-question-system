@@ -3,8 +3,8 @@ from sqlalchemy import delete
 from sqlalchemy.exc import IntegrityError
 
 from database.exams_questions.config import ExamsQuestionsDatabase, get_database
-from database.exams_questions.models import Exam, Question
-from database.repository import ExamRepository, QuestionRepository
+from database.exams_questions.models import Exam as ExamModel, Question as QuestionModel
+from database.repository import Exam, Question
 
 
 @pytest.fixture()
@@ -12,20 +12,20 @@ def clean_db():
     ExamsQuestionsDatabase.reset_instance()
     db = get_database()
     with db.session_scope() as session:
-        session.execute(delete(Question))
-        session.execute(delete(Exam))
+        session.execute(delete(QuestionModel))
+        session.execute(delete(ExamModel))
     yield db
     with db.session_scope() as session:
-        session.execute(delete(Question))
-        session.execute(delete(Exam))
+        session.execute(delete(QuestionModel))
+        session.execute(delete(ExamModel))
     ExamsQuestionsDatabase.reset_instance()
 
 
 def test_exam_repository_crud_and_get_or_create(clean_db):
-    repo = ExamRepository()
+    repo = Exam()
 
     created = repo.create(
-        Exam(
+        ExamModel(
             type="OAB",
             year=2024,
             examining_board="FGV",
@@ -55,15 +55,26 @@ def test_exam_repository_crud_and_get_or_create(clean_db):
     assert other.id != created.id
     assert len(repo.list_all()) == 2
 
+    v1 = repo.get_or_create(type="OAB", year=2024, version="2024.1", examining_board="FGV")
+    v2 = repo.get_or_create(type="OAB", year=2024, version="2024.2", examining_board="FGV")
+    v1_again = repo.get_or_create(
+        type="OAB", year=2024, version="2024.1", examining_board="FGV"
+    )
+    assert v1.version == "2024.1"
+    assert v2.version == "2024.2"
+    assert v1.id != v2.id
+    assert v1_again.id == v1.id
+    assert len(repo.list_all()) == 4
+
 
 def test_question_repository_crud_and_referential_integrity(clean_db):
-    exam_repo = ExamRepository()
-    question_repo = QuestionRepository()
+    exam_repo = Exam()
+    question_repo = Question()
 
-    exam = exam_repo.create(Exam(type="OAB", year=2024, examining_board="FGV"))
+    exam = exam_repo.create(ExamModel(type="OAB", year=2024, examining_board="FGV"))
 
     q1 = question_repo.create(
-        Question(
+        QuestionModel(
             uuid="550e8400-e29b-41d4-a716-446655440001",
             number=1,
             theme="Ética",
@@ -78,7 +89,7 @@ def test_question_repository_crud_and_referential_integrity(clean_db):
 
     q2_list = question_repo.create_many(
         [
-            Question(
+            QuestionModel(
                 uuid="550e8400-e29b-41d4-a716-446655440002",
                 number=2,
                 theme="Civil",
@@ -106,7 +117,7 @@ def test_question_repository_crud_and_referential_integrity(clean_db):
 
     with pytest.raises(IntegrityError):
         question_repo.create(
-            Question(
+            QuestionModel(
                 uuid="550e8400-e29b-41d4-a716-446655440001",
                 number=3,
                 statement="UUID duplicado",
@@ -119,7 +130,7 @@ def test_question_repository_crud_and_referential_integrity(clean_db):
 
     with pytest.raises(IntegrityError):
         question_repo.create(
-            Question(
+            QuestionModel(
                 uuid="550e8400-e29b-41d4-a716-446655440099",
                 number=4,
                 statement="Exam inexistente",
